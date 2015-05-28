@@ -9,6 +9,7 @@
 using System;
 using System.Windows.Forms;
 
+
 namespace Motion_detect
 {
 	/// <summary>
@@ -26,6 +27,5 @@ namespace Motion_detect
 			Application.SetCompatibleTextRenderingDefault(false);
 			Application.Run(new MainForm());
 		}
-		
 	}
 }

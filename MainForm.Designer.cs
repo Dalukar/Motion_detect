@@ -14,6 +14,11 @@ namespace Motion_detect
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
+		private System.Windows.Forms.RichTextBox LogBox;
+		private System.Windows.Forms.TextBox PathText;
+		private System.Windows.Forms.Button BrowseButton;
+		private System.Windows.Forms.Button btnStart;
+		private System.Windows.Forms.PictureBox pctCvWindow;
 		
 		/// <summary>
 		/// Disposes resources used by the form.
@@ -36,12 +41,77 @@ namespace Motion_detect
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.btnStart = new System.Windows.Forms.Button();
+			this.LogBox = new System.Windows.Forms.RichTextBox();
+			this.PathText = new System.Windows.Forms.TextBox();
+			this.BrowseButton = new System.Windows.Forms.Button();
+			this.pctCvWindow = new System.Windows.Forms.PictureBox();
+			((System.ComponentModel.ISupportInitialize)(this.pctCvWindow)).BeginInit();
+			this.SuspendLayout();
+			// 
+			// btnStart
+			// 
+			this.btnStart.Location = new System.Drawing.Point(323, 259);
+			this.btnStart.Name = "btnStart";
+			this.btnStart.Size = new System.Drawing.Size(75, 23);
+			this.btnStart.TabIndex = 0;
+			this.btnStart.Text = "Start";
+			this.btnStart.UseVisualStyleBackColor = true;
+			this.btnStart.Click += new System.EventHandler(this.Button1Click);
+			// 
+			// LogBox
+			// 
+			this.LogBox.Location = new System.Drawing.Point(12, 314);
+			this.LogBox.Name = "LogBox";
+			this.LogBox.Size = new System.Drawing.Size(386, 163);
+			this.LogBox.TabIndex = 1;
+			this.LogBox.Text = "";
+			// 
+			// PathText
+			// 
+			this.PathText.Location = new System.Drawing.Point(12, 288);
+			this.PathText.Name = "PathText";
+			this.PathText.Size = new System.Drawing.Size(386, 20);
+			this.PathText.TabIndex = 2;
+			this.PathText.Text = "C:\\Users\\Public\\Videos\\Sample Videos\\test.wmv";
+			// 
+			// BrowseButton
+			// 
+			this.BrowseButton.Location = new System.Drawing.Point(12, 259);
+			this.BrowseButton.Name = "BrowseButton";
+			this.BrowseButton.Size = new System.Drawing.Size(75, 23);
+			this.BrowseButton.TabIndex = 3;
+			this.BrowseButton.Text = "Обзор";
+			this.BrowseButton.UseVisualStyleBackColor = true;
+			this.BrowseButton.Click += new System.EventHandler(this.BrowseButtonClick);
+			// 
+			// pctCvWindow
+			// 
+			this.pctCvWindow.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.pctCvWindow.Location = new System.Drawing.Point(12, 12);
+			this.pctCvWindow.Name = "pctCvWindow";
+			this.pctCvWindow.Size = new System.Drawing.Size(386, 224);
+			this.pctCvWindow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+			this.pctCvWindow.TabIndex = 4;
+			this.pctCvWindow.TabStop = false;
 			// 
 			// MainForm
 			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Text = "Motion_detect";
+			this.ClientSize = new System.Drawing.Size(745, 489);
+			this.Controls.Add(this.pctCvWindow);
+			this.Controls.Add(this.BrowseButton);
+			this.Controls.Add(this.PathText);
+			this.Controls.Add(this.LogBox);
+			this.Controls.Add(this.btnStart);
 			this.Name = "MainForm";
+			this.Text = "Motion_detect";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
+			((System.ComponentModel.ISupportInitialize)(this.pctCvWindow)).EndInit();
+			this.ResumeLayout(false);
+			this.PerformLayout();
+
 		}
 	}
 }
