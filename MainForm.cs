@@ -22,7 +22,8 @@ namespace Motion_detect
 	public partial class MainForm : Form
 	{
 		Thread _videoThread;
-		int framesPerSample = 2;
+		int framesPerSample = 1;
+		int fpsCoef = 20;
 		public MainForm()
 		{
 			InitializeComponent();
@@ -64,21 +65,26 @@ namespace Motion_detect
 			using (CvCapture cap = new CvCapture(PathText.Text))
     		{
 				IplImage[] imgs = new IplImage[2];
-				imgs[0] = cap.QueryFrame(); //чтоб не ругалось на null
-				imgs[1] = cap.QueryFrame(); //Затупа, надо сделать красивее
+				IplImage diffImage = cap.QueryFrame().Clone();
+				imgs[0] = cap.QueryFrame().Clone(); //чтоб не ругалось на null
+				imgs[1] = cap.QueryFrame().Clone(); //Затупа, надо сделать красивее
 				int k = 0;
 				int imageN = 0;
         		while (true)
         		{
         			IplImage image = cap.QueryFrame();
-        			Bitmap bm = image.ToBitmap();
             		//bm.SetResolution(pctCvWindow.Width, pctCvWindow.Height);
-            		pctCvWindow.Image = bm;
-            		Thread.Sleep(100); //Надо как-то правильно ставить фпс
+            		pctCvWindow.Image = image.ToBitmap();
+            		Thread.Sleep(fpsCoef); //Надо как-то правильно ставить фпс
             		if(k == framesPerSample)
             		{
                         imgs[imageN] = image.Clone();
-            			SafeLog("Diff: " +SimpleMotionDetect(imgs[0], imgs[1]) + "\n");
+                        string diff = Convert.ToString(SimpleMotionDetect(imgs[0], imgs[1], ref diffImage));
+                        Action chTxt = new Action(() => {diffText.Text = diff;});
+            			if (InvokeRequired)
+                			this.BeginInvoke(chTxt);
+           				else chTxt();
+            			pctDiff.Image = diffImage.ToBitmap();
         				imageN = (imageN == 1) ? 0 : 1;
         				k = 0;
             		}
@@ -105,22 +111,20 @@ namespace Motion_detect
             else chTxt();
         }
 		
-		int SimpleMotionDetect(IplImage img1, IplImage img2)
+		long SimpleMotionDetect(IplImage img1, IplImage img2, ref IplImage diffImage)
 		{
 			//Можно сделать раза в 3 быстрее http://tech.pro/tutorial/660/csharp-tutorial-convert-a-color-image-to-grayscale
 			int diff = 0;
 			unsafe {
     			byte* ptr1 = (byte*)img1.ImageData;
     			byte* ptr2 = (byte*)img2.ImageData;
+    			byte* ptr3 = (byte*)diffImage.ImageData;
     			for (int y = 0; y < img1.Height; y++) {
         			for (int x = 0; x < img1.Width; x++) {
             			int offset = (img1.WidthStep * y) + (x * 3);
             			byte b1 = ptr1[offset + 0];    // B
             			byte g1 = ptr1[offset + 1];    // G
             			byte r1 = ptr1[offset + 2];    // R
-            			ptr1[offset + 0] = r1;
-            			ptr1[offset + 1] = g1;
-            			ptr1[offset + 2] = b1;
             			 byte grayScale1 = 
                				(byte)((b1 * .11) + //B
                				(g1 * .59) +  //G
@@ -128,14 +132,15 @@ namespace Motion_detect
             			byte b2 = ptr2[offset + 0];    // B
             			byte g2 = ptr2[offset + 1];    // G
             			byte r2 = ptr2[offset + 2];    // R
-            			ptr2[offset + 0] = r2;
-            			ptr2[offset + 1] = g2;
-            			ptr2[offset + 2] = b2;
             			 byte grayScale2 = 
                				(byte)((b2 * .11) + //B
                				(g2 * .59) +  //G
                				(r2 * .3)); //R
-                         diff += Math.Abs(grayScale1 - grayScale2)/100;
+            			 ptr3[offset + 0] = (Byte)Math.Abs(b2 - b1);    // B
+            			ptr3[offset + 1] = (Byte)Math.Abs(g2 - g1);    // G
+            			ptr3[offset + 2] = (Byte)Math.Abs(r2 - r1);     // R
+
+                         diff += Math.Abs(grayScale1 - grayScale2);
         			}
     			}
 			}

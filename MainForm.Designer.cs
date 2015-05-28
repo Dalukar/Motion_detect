@@ -19,6 +19,8 @@ namespace Motion_detect
 		private System.Windows.Forms.Button BrowseButton;
 		private System.Windows.Forms.Button btnStart;
 		private System.Windows.Forms.PictureBox pctCvWindow;
+		private System.Windows.Forms.PictureBox pctDiff;
+		private System.Windows.Forms.Label diffText;
 		
 		/// <summary>
 		/// Disposes resources used by the form.
@@ -46,7 +48,10 @@ namespace Motion_detect
 			this.PathText = new System.Windows.Forms.TextBox();
 			this.BrowseButton = new System.Windows.Forms.Button();
 			this.pctCvWindow = new System.Windows.Forms.PictureBox();
+			this.pctDiff = new System.Windows.Forms.PictureBox();
+			this.diffText = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.pctCvWindow)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.pctDiff)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// btnStart
@@ -63,6 +68,7 @@ namespace Motion_detect
 			// 
 			this.LogBox.Location = new System.Drawing.Point(12, 314);
 			this.LogBox.Name = "LogBox";
+			this.LogBox.ReadOnly = true;
 			this.LogBox.Size = new System.Drawing.Size(386, 163);
 			this.LogBox.TabIndex = 1;
 			this.LogBox.Text = "";
@@ -95,11 +101,31 @@ namespace Motion_detect
 			this.pctCvWindow.TabIndex = 4;
 			this.pctCvWindow.TabStop = false;
 			// 
+			// pctDiff
+			// 
+			this.pctDiff.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.pctDiff.Location = new System.Drawing.Point(404, 12);
+			this.pctDiff.Name = "pctDiff";
+			this.pctDiff.Size = new System.Drawing.Size(386, 224);
+			this.pctDiff.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+			this.pctDiff.TabIndex = 5;
+			this.pctDiff.TabStop = false;
+			// 
+			// diffText
+			// 
+			this.diffText.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.diffText.Location = new System.Drawing.Point(405, 243);
+			this.diffText.Name = "diffText";
+			this.diffText.Size = new System.Drawing.Size(385, 23);
+			this.diffText.TabIndex = 6;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(745, 489);
+			this.ClientSize = new System.Drawing.Size(813, 489);
+			this.Controls.Add(this.diffText);
+			this.Controls.Add(this.pctDiff);
 			this.Controls.Add(this.pctCvWindow);
 			this.Controls.Add(this.BrowseButton);
 			this.Controls.Add(this.PathText);
@@ -109,6 +135,7 @@ namespace Motion_detect
 			this.Text = "Motion_detect";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.pctCvWindow)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.pctDiff)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
