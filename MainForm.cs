@@ -22,7 +22,7 @@ namespace Motion_detect
 	public partial class MainForm : Form
 	{
 		Thread _videoThread;
-		int framesPerSample = 10;
+		int framesPerSample = 2;
 		public MainForm()
 		{
 			InitializeComponent();
@@ -74,9 +74,10 @@ namespace Motion_detect
         			Bitmap bm = image.ToBitmap();
             		//bm.SetResolution(pctCvWindow.Width, pctCvWindow.Height);
             		pctCvWindow.Image = bm;
-            		Thread.Sleep(20); //Надо как-то правильно ставить фпс
+            		Thread.Sleep(100); //Надо как-то правильно ставить фпс
             		if(k == framesPerSample)
             		{
+                        imgs[imageN] = image.Clone();
             			SafeLog("Diff: " +SimpleMotionDetect(imgs[0], imgs[1]) + "\n");
         				imageN = (imageN == 1) ? 0 : 1;
         				k = 0;
@@ -90,6 +91,7 @@ namespace Motion_detect
 		}
 		void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
+            if(_videoThread != null)
 			_videoThread.Abort();
 		}
 		
@@ -109,7 +111,7 @@ namespace Motion_detect
 			int diff = 0;
 			unsafe {
     			byte* ptr1 = (byte*)img1.ImageData;
-    			byte* ptr2 = (byte*)img1.ImageData;
+    			byte* ptr2 = (byte*)img2.ImageData;
     			for (int y = 0; y < img1.Height; y++) {
         			for (int x = 0; x < img1.Width; x++) {
             			int offset = (img1.WidthStep * y) + (x * 3);
@@ -123,7 +125,6 @@ namespace Motion_detect
                				(byte)((b1 * .11) + //B
                				(g1 * .59) +  //G
                				(r1 * .3)); //R
-            			 
             			byte b2 = ptr2[offset + 0];    // B
             			byte g2 = ptr2[offset + 1];    // G
             			byte r2 = ptr2[offset + 2];    // R
@@ -134,8 +135,7 @@ namespace Motion_detect
                				(byte)((b2 * .11) + //B
                				(g2 * .59) +  //G
                				(r2 * .3)); //R
-            			 
-            			 diff += Math.Abs(grayScale1 - grayScale2)/20;
+                         diff += Math.Abs(grayScale1 - grayScale2)/100;
         			}
     			}
 			}
