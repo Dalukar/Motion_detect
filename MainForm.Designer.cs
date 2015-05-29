@@ -56,7 +56,7 @@ namespace Motion_detect
 			// 
 			// btnStart
 			// 
-			this.btnStart.Location = new System.Drawing.Point(323, 259);
+			this.btnStart.Location = new System.Drawing.Point(726, 38);
 			this.btnStart.Name = "btnStart";
 			this.btnStart.Size = new System.Drawing.Size(75, 23);
 			this.btnStart.TabIndex = 0;
@@ -66,28 +66,28 @@ namespace Motion_detect
 			// 
 			// LogBox
 			// 
-			this.LogBox.Location = new System.Drawing.Point(12, 314);
+			this.LogBox.Location = new System.Drawing.Point(506, 378);
 			this.LogBox.Name = "LogBox";
 			this.LogBox.ReadOnly = true;
-			this.LogBox.Size = new System.Drawing.Size(386, 163);
+			this.LogBox.Size = new System.Drawing.Size(295, 163);
 			this.LogBox.TabIndex = 1;
 			this.LogBox.Text = "";
 			// 
 			// PathText
 			// 
-			this.PathText.Location = new System.Drawing.Point(12, 288);
+			this.PathText.Location = new System.Drawing.Point(506, 12);
 			this.PathText.Name = "PathText";
-			this.PathText.Size = new System.Drawing.Size(386, 20);
+			this.PathText.Size = new System.Drawing.Size(295, 20);
 			this.PathText.TabIndex = 2;
 			this.PathText.Text = "C:\\Users\\Public\\Videos\\Sample Videos\\test.wmv";
 			// 
 			// BrowseButton
 			// 
-			this.BrowseButton.Location = new System.Drawing.Point(12, 259);
+			this.BrowseButton.Location = new System.Drawing.Point(506, 38);
 			this.BrowseButton.Name = "BrowseButton";
 			this.BrowseButton.Size = new System.Drawing.Size(75, 23);
 			this.BrowseButton.TabIndex = 3;
-			this.BrowseButton.Text = "Обзор";
+			this.BrowseButton.Text = "Browse";
 			this.BrowseButton.UseVisualStyleBackColor = true;
 			this.BrowseButton.Click += new System.EventHandler(this.BrowseButtonClick);
 			// 
@@ -96,7 +96,7 @@ namespace Motion_detect
 			this.pctCvWindow.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.pctCvWindow.Location = new System.Drawing.Point(12, 12);
 			this.pctCvWindow.Name = "pctCvWindow";
-			this.pctCvWindow.Size = new System.Drawing.Size(386, 224);
+			this.pctCvWindow.Size = new System.Drawing.Size(488, 260);
 			this.pctCvWindow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			this.pctCvWindow.TabIndex = 4;
 			this.pctCvWindow.TabStop = false;
@@ -104,9 +104,9 @@ namespace Motion_detect
 			// pctDiff
 			// 
 			this.pctDiff.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.pctDiff.Location = new System.Drawing.Point(404, 12);
+			this.pctDiff.Location = new System.Drawing.Point(13, 281);
 			this.pctDiff.Name = "pctDiff";
-			this.pctDiff.Size = new System.Drawing.Size(386, 224);
+			this.pctDiff.Size = new System.Drawing.Size(487, 260);
 			this.pctDiff.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			this.pctDiff.TabIndex = 5;
 			this.pctDiff.TabStop = false;
@@ -114,16 +114,16 @@ namespace Motion_detect
 			// diffText
 			// 
 			this.diffText.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.diffText.Location = new System.Drawing.Point(405, 243);
+			this.diffText.Location = new System.Drawing.Point(506, 73);
 			this.diffText.Name = "diffText";
-			this.diffText.Size = new System.Drawing.Size(385, 23);
+			this.diffText.Size = new System.Drawing.Size(295, 53);
 			this.diffText.TabIndex = 6;
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(813, 489);
+			this.ClientSize = new System.Drawing.Size(813, 553);
 			this.Controls.Add(this.diffText);
 			this.Controls.Add(this.pctDiff);
 			this.Controls.Add(this.pctCvWindow);
