@@ -21,6 +21,8 @@ namespace Motion_detect
 		private System.Windows.Forms.PictureBox pctCvWindow;
 		private System.Windows.Forms.PictureBox pctDiff;
 		private System.Windows.Forms.Label diffText;
+		private System.Windows.Forms.TextBox BackFramesCountText;
+		private System.Windows.Forms.Label label1;
 		
 		/// <summary>
 		/// Disposes resources used by the form.
@@ -50,15 +52,17 @@ namespace Motion_detect
 			this.pctCvWindow = new System.Windows.Forms.PictureBox();
 			this.pctDiff = new System.Windows.Forms.PictureBox();
 			this.diffText = new System.Windows.Forms.Label();
+			this.BackFramesCountText = new System.Windows.Forms.TextBox();
+			this.label1 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.pctCvWindow)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pctDiff)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// btnStart
 			// 
-			this.btnStart.Location = new System.Drawing.Point(726, 38);
+			this.btnStart.Location = new System.Drawing.Point(762, 36);
 			this.btnStart.Name = "btnStart";
-			this.btnStart.Size = new System.Drawing.Size(75, 23);
+			this.btnStart.Size = new System.Drawing.Size(57, 23);
 			this.btnStart.TabIndex = 0;
 			this.btnStart.Text = "Start";
 			this.btnStart.UseVisualStyleBackColor = true;
@@ -77,15 +81,15 @@ namespace Motion_detect
 			// 
 			this.PathText.Location = new System.Drawing.Point(506, 12);
 			this.PathText.Name = "PathText";
-			this.PathText.Size = new System.Drawing.Size(295, 20);
+			this.PathText.Size = new System.Drawing.Size(250, 20);
 			this.PathText.TabIndex = 2;
 			this.PathText.Text = "C:\\Users\\Public\\Videos\\Sample Videos\\test.wmv";
 			// 
 			// BrowseButton
 			// 
-			this.BrowseButton.Location = new System.Drawing.Point(506, 38);
+			this.BrowseButton.Location = new System.Drawing.Point(762, 10);
 			this.BrowseButton.Name = "BrowseButton";
-			this.BrowseButton.Size = new System.Drawing.Size(75, 23);
+			this.BrowseButton.Size = new System.Drawing.Size(57, 23);
 			this.BrowseButton.TabIndex = 3;
 			this.BrowseButton.Text = "Browse";
 			this.BrowseButton.UseVisualStyleBackColor = true;
@@ -114,16 +118,34 @@ namespace Motion_detect
 			// diffText
 			// 
 			this.diffText.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.diffText.Location = new System.Drawing.Point(506, 73);
+			this.diffText.Location = new System.Drawing.Point(506, 308);
 			this.diffText.Name = "diffText";
 			this.diffText.Size = new System.Drawing.Size(295, 53);
 			this.diffText.TabIndex = 6;
+			// 
+			// BackFramesCountText
+			// 
+			this.BackFramesCountText.Location = new System.Drawing.Point(651, 38);
+			this.BackFramesCountText.Name = "BackFramesCountText";
+			this.BackFramesCountText.Size = new System.Drawing.Size(61, 20);
+			this.BackFramesCountText.TabIndex = 7;
+			this.BackFramesCountText.Text = "1";
+			// 
+			// label1
+			// 
+			this.label1.Location = new System.Drawing.Point(506, 41);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(139, 23);
+			this.label1.TabIndex = 8;
+			this.label1.Text = "Background frames count:";
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(813, 553);
+			this.ClientSize = new System.Drawing.Size(831, 553);
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.BackFramesCountText);
 			this.Controls.Add(this.diffText);
 			this.Controls.Add(this.pctDiff);
 			this.Controls.Add(this.pctCvWindow);
