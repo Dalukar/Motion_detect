@@ -38,27 +38,25 @@ namespace Motion_detect
 			IplImage image = capture.QueryFrame();
 			IplImage prevImage = image.EmptyClone();
 			IplImage diffImage = image.EmptyClone();
-			using (CvCapture cap = new CvCapture(PathText.Text))
-    		{
-        		while (true)
-        		{
-        			image = capture.QueryFrame();
-        			if(image == null)
-            			break;   
-        			//Cv.AbsDiff(prevImage,image,diffImage);
-           			SimpleMotionDetect(prevImage,image,ref diffImage);
-        			pctCvWindow.Image = image.ToBitmap();
-            		pctDiff.Image = diffImage.ToBitmap();
-            		prevImage = image.Clone();
-        			Scalar sum = diffImage.Sum();
-        			Action chTxt = new Action(() => 
-        			{diffText.Text = Convert.ToString(sum.Val0 + sum.Val1 + sum.Val2 + sum.Val3) + "\n" + sum.ToString();});
-            		if (InvokeRequired)
-               			this.BeginInvoke(chTxt);
-            		else chTxt();
-        			Thread.Sleep(sleepTime);
-        		}
-    		}
+        	while (true)
+        	{
+        		image = capture.QueryFrame();
+        		if(image == null)
+            		break;   
+        		//Cv.AbsDiff(prevImage,image,diffImage);
+           		SimpleMotionDetect(prevImage,image,ref diffImage);
+        		pctCvWindow.Image = image.ToBitmap();
+        		//Cv.Threshold(diffImage, diffImage, 100,255, ThresholdType.Binary);
+            	pctDiff.Image = diffImage.ToBitmap();
+            	prevImage = image.Clone();
+        		Scalar sum = diffImage.Sum();
+        		Action chTxt = new Action(() => 
+        		{diffText.Text = Convert.ToString(sum.Val0 + sum.Val1 + sum.Val2 + sum.Val3) + "\n" + sum.ToString();});
+            	if (InvokeRequired)
+               		this.BeginInvoke(chTxt);
+            	else chTxt();
+        		Thread.Sleep(sleepTime);
+        	}
 		}
 			
 		private void AvgMultiFrameDiffCallback()
@@ -71,33 +69,30 @@ namespace Motion_detect
 			int imageCounter = 0;
 			image = capture.QueryFrame();
 			for (int i = 0; i < prevImages.Length; i++)
-				{	
+			{	
 				prevImages[i] = image.EmptyClone();
-				}
-			using (CvCapture cap = new CvCapture(PathText.Text))
-    		{
-        		while (true)
-        		{
-        			image = capture.QueryFrame();
-        			if(image == null)
-            			break;   
-        			Cv.AbsDiff(AvgImg(prevImages),image,diffImage);
-        			//SimpleMotionDetect(AvgImg(prevImages),image,ref diffImage);
-        			pctCvWindow.Image = image.ToBitmap();
-            		pctDiff.Image = diffImage.ToBitmap();
-            		prevImages[imageCounter] = image.Clone();
-        			Scalar sum = diffImage.Sum();
-        			Action chTxt = new Action(() => 
-        			{diffText.Text = Convert.ToString(sum.Val0 + sum.Val1 + sum.Val2 + sum.Val3) + "\n" + sum.ToString();});
-            		if (InvokeRequired)
-               			this.BeginInvoke(chTxt);
-            		else chTxt();
-            		if(++imageCounter >= prevImages.Length)
-            			imageCounter = 0;
-            		
-        			Thread.Sleep(sleepTime);
-        		}
-    		}
+			}
+        	while (true)
+        	{
+        		image = capture.QueryFrame();
+        		if(image == null)
+            		break;   
+        		Cv.AbsDiff(AvgImg(prevImages),image,diffImage);
+        		//SimpleMotionDetect(AvgImg(prevImages),image,ref diffImage);
+        		pctCvWindow.Image = image.ToBitmap();
+        		//Cv.Threshold(diffImage, diffImage, 100,255, ThresholdType.Binary);
+            	pctDiff.Image = diffImage.ToBitmap();
+            	prevImages[imageCounter] = image.Clone();
+        		Scalar sum = diffImage.Sum();
+        		Action chTxt = new Action(() => 
+        		{diffText.Text = Convert.ToString(sum.Val0 + sum.Val1 + sum.Val2 + sum.Val3) + "\n" + sum.ToString();});
+            	if (InvokeRequired)
+               		this.BeginInvoke(chTxt);
+            	else chTxt();
+            	if(++imageCounter >= prevImages.Length)
+            		imageCounter = 0;
+        		Thread.Sleep(sleepTime);
+        	}
 		}
 		
 		long SimpleMotionDetect(IplImage img1, IplImage img2, ref IplImage diffImage)
