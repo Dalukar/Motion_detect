@@ -20,7 +20,6 @@ namespace Motion_detect
 		private System.Windows.Forms.Button btnStart;
 		private System.Windows.Forms.PictureBox pctCvWindow;
 		private System.Windows.Forms.PictureBox pctDiff;
-		private System.Windows.Forms.Label diffText;
 		private System.Windows.Forms.TextBox BackFramesCountText;
 		private System.Windows.Forms.Label label1;
 		
@@ -51,7 +50,6 @@ namespace Motion_detect
 			this.BrowseButton = new System.Windows.Forms.Button();
 			this.pctCvWindow = new System.Windows.Forms.PictureBox();
 			this.pctDiff = new System.Windows.Forms.PictureBox();
-			this.diffText = new System.Windows.Forms.Label();
 			this.BackFramesCountText = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.pctCvWindow)).BeginInit();
@@ -115,14 +113,6 @@ namespace Motion_detect
 			this.pctDiff.TabIndex = 5;
 			this.pctDiff.TabStop = false;
 			// 
-			// diffText
-			// 
-			this.diffText.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.diffText.Location = new System.Drawing.Point(506, 308);
-			this.diffText.Name = "diffText";
-			this.diffText.Size = new System.Drawing.Size(295, 53);
-			this.diffText.TabIndex = 6;
-			// 
 			// BackFramesCountText
 			// 
 			this.BackFramesCountText.Location = new System.Drawing.Point(651, 38);
@@ -146,7 +136,6 @@ namespace Motion_detect
 			this.ClientSize = new System.Drawing.Size(831, 553);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.BackFramesCountText);
-			this.Controls.Add(this.diffText);
 			this.Controls.Add(this.pctDiff);
 			this.Controls.Add(this.pctCvWindow);
 			this.Controls.Add(this.BrowseButton);

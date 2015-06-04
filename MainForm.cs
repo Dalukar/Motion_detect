@@ -23,72 +23,46 @@ namespace Motion_detect
 	public partial class MainForm : Form
 	{
 		Thread _videoThread;
-		float slowCoef = 1;
+		int slowCoef = 1;
 		int backFramesCount = 1;
+		CvCapture capture = null;
 		public MainForm()
 		{
 			InitializeComponent();
 			
 		}
-			
-		private void SingleFrameDiffCallback()
-		{
-			CvCapture capture = new CvCapture(PathText.Text);
-			int sleepTime = (int)Math.Round(1000 / capture.Fps* slowCoef);
-			IplImage image = capture.QueryFrame();
-			IplImage prevImage = image.EmptyClone();
-			IplImage diffImage = image.EmptyClone();
-        	while (true)
-        	{
-        		image = capture.QueryFrame();
-        		if(image == null)
-            		break;   
-        		//Cv.AbsDiff(prevImage,image,diffImage);
-           		SimpleMotionDetect(prevImage,image,ref diffImage);
-        		pctCvWindow.Image = image.ToBitmap();
-        		//Cv.Threshold(diffImage, diffImage, 100,255, ThresholdType.Binary);
-            	pctDiff.Image = diffImage.ToBitmap();
-            	prevImage = image.Clone();
-        		Scalar sum = diffImage.Sum();
-        		Action chTxt = new Action(() => 
-        		{diffText.Text = Convert.ToString(sum.Val0 + sum.Val1 + sum.Val2 + sum.Val3) + "\n" + sum.ToString();});
-            	if (InvokeRequired)
-               		this.BeginInvoke(chTxt);
-            	else chTxt();
-        		Thread.Sleep(sleepTime);
-        	}
-		}
-			
 		private void AvgMultiFrameDiffCallback()
 		{
-			CvCapture capture = new CvCapture(PathText.Text);
+			capture = new CvCapture(PathText.Text);
 			int sleepTime = (int)Math.Round(1000 / capture.Fps* slowCoef);
 			IplImage image = capture.QueryFrame();
 			IplImage diffImage = image.EmptyClone();
 			IplImage[] prevImages = new IplImage[backFramesCount];
+			IplImage avgImage = image.EmptyClone();
 			int imageCounter = 0;
 			image = capture.QueryFrame();
 			for (int i = 0; i < prevImages.Length; i++)
 			{	
 				prevImages[i] = image.EmptyClone();
 			}
+			
         	while (true)
         	{
         		image = capture.QueryFrame();
         		if(image == null)
-            		break;   
-        		Cv.AbsDiff(AvgImg(prevImages),image,diffImage);
+            		break;
+        		if(backFramesCount == 1)
+        			avgImage = prevImages[0];
+        		else
+        			avgImage = AvgImg(prevImages);
+        		Cv.AbsDiff(avgImage,image,diffImage);
         		//SimpleMotionDetect(AvgImg(prevImages),image,ref diffImage);
+        		Cv.Threshold(diffImage, diffImage, 100,255, ThresholdType.Binary);
         		pctCvWindow.Image = image.ToBitmap();
-        		//Cv.Threshold(diffImage, diffImage, 100,255, ThresholdType.Binary);
             	pctDiff.Image = diffImage.ToBitmap();
             	prevImages[imageCounter] = image.Clone();
         		Scalar sum = diffImage.Sum();
-        		Action chTxt = new Action(() => 
-        		{diffText.Text = Convert.ToString(sum.Val0 + sum.Val1 + sum.Val2 + sum.Val3) + "\n" + sum.ToString();});
-            	if (InvokeRequired)
-               		this.BeginInvoke(chTxt);
-            	else chTxt();
+        		SafeLog(Convert.ToString(sum.Val0 + sum.Val1 + sum.Val2 + sum.Val3) + "\n" + sum.ToString());
             	if(++imageCounter >= prevImages.Length)
             		imageCounter = 0;
         		Thread.Sleep(sleepTime);
@@ -165,7 +139,7 @@ namespace Motion_detect
 		
 		private void SafeLog(string text) {
             Action chTxt = new Action(() => {
-                LogBox.Text += text;
+                LogBox.Text = text;
             });
  
             if (InvokeRequired)
@@ -185,22 +159,14 @@ namespace Motion_detect
     		{
 			 	try {
 			 		backFramesCount=Convert.ToInt32(BackFramesCountText.Text);
+			 		capture = new CvCapture(PathText.Text);
 			 	}
 			 	catch(Exception ex){
 			 		return;
 			 	}
-			 	if(backFramesCount == 1)
-			 	{
-			 		_videoThread = new Thread(new ThreadStart(SingleFrameDiffCallback));
-    				_videoThread.Start();
-    				btnStart.Text = "Stop";
-			 	}
-			 	if(backFramesCount > 1)
-			 	{
-			 		_videoThread = new Thread(new ThreadStart(AvgMultiFrameDiffCallback));
-    				_videoThread.Start();
-    				btnStart.Text = "Stop";
-			 	}  
+			 	_videoThread = new Thread(new ThreadStart(AvgMultiFrameDiffCallback));
+    			_videoThread.Start();
+    			btnStart.Text = "Stop";
     		}
     		else
     		{
