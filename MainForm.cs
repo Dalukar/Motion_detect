@@ -23,63 +23,73 @@ namespace Motion_detect
 	public partial class MainForm : Form
 	{
 		Thread _videoThread;
-		int slowCoef = 1;
+		bool pauseFlag = false;
+		double slowCoef = 1;
 		int backFramesCount = 1;
-		CvCapture capture = null;
+		VideoCapture capture = null;
 		public MainForm()
 		{
 			InitializeComponent();
+			VideoCapture capture = new VideoCapture(PathText.Text);
 			
 		}
 		private void AvgMultiFrameDiffCallback()
 		{
-			capture = new CvCapture(PathText.Text);
-			int sleepTime = (int)Math.Round(1000 / capture.Fps* slowCoef);
-			IplImage image = capture.QueryFrame();
-			IplImage diffImage = image.EmptyClone();
-			IplImage[] prevImages = new IplImage[backFramesCount];
-			IplImage avgImage = image.EmptyClone();
-			int imageCounter = 0;
-			image = capture.QueryFrame();
-			for (int i = 0; i < prevImages.Length; i++)
-			{	
-				prevImages[i] = image.EmptyClone();
+			try {
+				capture = new VideoCapture(PathText.Text);
+				int sleepTime = (int)Math.Round(1000 / capture.Fps);
+				int imageCounter = 0;
+				Mat image = new Mat();
+				capture.Read(image);
+				image = image.CvtColor(ColorConversion.BgrToGray);
+				Mat diffImage = image.EmptyClone();
+				Mat avgImage = image.EmptyClone();
+				Mat[] prevImages = new Mat[backFramesCount];
+				for (int i = 0; i < prevImages.Length; i++){	
+					prevImages[i] = image.EmptyClone();
+				}		
+        		while (true)
+        		{
+        			capture.Read(image);
+        			if(image.Empty())
+            			break;
+        			image = image.CvtColor(ColorConversion.BgrToGray);
+        			if(backFramesCount == 1)
+        				avgImage = prevImages[0];
+        			else
+        				avgImage = AvgImgGray(prevImages);
+        			Cv2.Absdiff(avgImage,image,diffImage);
+        			//SimpleMotionDetect(AvgImg(prevImages),image,ref diffImage);
+        			Cv2.Threshold(diffImage, diffImage, 50,255, ThresholdType.Binary);
+        			pctCvWindow.Image = image.ToBitmap();
+            		pctDiff.Image = diffImage.ToBitmap();
+            		prevImages[imageCounter] = image.Clone();
+        			Scalar sum = diffImage.Sum();
+        			SafeLog(Convert.ToString(sum.Val0 + sum.Val1 + sum.Val2 + sum.Val3) + "\n");
+            		if(++imageCounter >= prevImages.Length)
+            			imageCounter = 0;
+            		while(pauseFlag)
+            			Thread.Sleep(100);
+            		Thread.Sleep(Convert.ToInt32(sleepTime*slowCoef));
+        		}		 		
 			}
-			
-        	while (true)
-        	{
-        		image = capture.QueryFrame();
-        		if(image == null)
-            		break;
-        		if(backFramesCount == 1)
-        			avgImage = prevImages[0];
-        		else
-        			avgImage = AvgImg(prevImages);
-        		Cv.AbsDiff(avgImage,image,diffImage);
-        		//SimpleMotionDetect(AvgImg(prevImages),image,ref diffImage);
-        		Cv.Threshold(diffImage, diffImage, 100,255, ThresholdType.Binary);
-        		pctCvWindow.Image = image.ToBitmap();
-            	pctDiff.Image = diffImage.ToBitmap();
-            	prevImages[imageCounter] = image.Clone();
-        		Scalar sum = diffImage.Sum();
-        		SafeLog(Convert.ToString(sum.Val0 + sum.Val1 + sum.Val2 + sum.Val3) + "\n" + sum.ToString());
-            	if(++imageCounter >= prevImages.Length)
-            		imageCounter = 0;
-        		Thread.Sleep(sleepTime);
-        	}
+			catch(Exception ex){
+			 	SafeLog("Bad input");
+			 	return;
+			 }
 		}
 		
-		long SimpleMotionDetect(IplImage img1, IplImage img2, ref IplImage diffImage)
+		long SimpleMotionDetect(Mat img1, Mat img2, ref Mat diffImage)
 		{
 			//Можно сделать раза в 3 быстрее http://tech.pro/tutorial/660/csharp-tutorial-convert-a-color-image-to-grayscale
 			int diff = 0;
 			unsafe {
-    			byte* ptr1 = (byte*)img1.ImageData;
-    			byte* ptr2 = (byte*)img2.ImageData;
-    			byte* ptr3 = (byte*)diffImage.ImageData;
+    			byte* ptr1 = (byte*)img1.Data;
+    			byte* ptr2 = (byte*)img2.Data;
+    			byte* ptr3 = (byte*)diffImage.Data;
     			for (int y = 0; y < img1.Height; y++) {
         			for (int x = 0; x < img1.Width; x++) {
-            			int offset = (img1.WidthStep * y) + (x * 3);
+    					int offset = (img1.Width * img1.Channels() * y) + (x * 3);
             			byte b1 = ptr1[offset + 0];    // B
             			byte g1 = ptr1[offset + 1];    // G
             			byte r1 = ptr1[offset + 2];    // R
@@ -105,20 +115,20 @@ namespace Motion_detect
 			return diff;
 		}
 
-		IplImage AvgImg(IplImage[] inImg)
+		Mat AvgImg(Mat[] inImg)
 		{
-			IplImage avgImg = inImg[0].EmptyClone();
+			var avgImg = inImg[0].EmptyClone();
 			unsafe {
-				byte* ptrAvg = (byte*)avgImg.ImageData;
+				byte* ptrAvg = (byte*)avgImg.Data;
 				byte*[] ptrPct = new byte*[inImg.Length];
 				for (int i = 0; i < inImg.Length; i++)
 				{
-					ptrPct[i] = (byte*)inImg[i].ImageData;
+					ptrPct[i] = (byte*)inImg[i].Data;
 				}
 				
     			for (int y = 0; y < avgImg.Height; y++) {
         			for (int x = 0; x < avgImg.Width; x++) {
-						int offset = (avgImg.WidthStep * y) + (x * 3);
+						int offset = (avgImg.Channels() * avgImg.Width * y) + (x * 3);
 						int bSum = 0;
 						int gSum = 0;
 						int rSum = 0;
@@ -131,6 +141,32 @@ namespace Motion_detect
 						ptrAvg[offset + 0] = Convert.ToByte(bSum/inImg.Length);    // B
 						ptrAvg[offset + 1] = Convert.ToByte(gSum/inImg.Length);    // G
 						ptrAvg[offset + 2] = Convert.ToByte(rSum/inImg.Length);     // R
+        			}
+    			}
+			}
+			return avgImg;
+		}
+		
+		Mat AvgImgGray(Mat[] inImg)
+		{
+			var avgImg = inImg[0].EmptyClone();
+			unsafe {
+				byte* ptrAvg = (byte*)avgImg.Data;
+				byte*[] ptrPct = new byte*[inImg.Length];
+				for (int i = 0; i < inImg.Length; i++)
+				{
+					ptrPct[i] = (byte*)inImg[i].Data;
+				}
+				
+    			for (int y = 0; y < avgImg.Height; y++) {
+        			for (int x = 0; x < avgImg.Width; x++) {
+						int offset = (avgImg.Channels() * avgImg.Width * y) + (x * 3);
+						int Sum = 0;
+						for (int i = 0; i < inImg.Length; i++)
+						{
+            				Sum += ptrPct[i][offset];
+						}
+						ptrAvg[offset] = Convert.ToByte(Sum/inImg.Length);    // B
         			}
     			}
 			}
@@ -150,28 +186,17 @@ namespace Motion_detect
 		void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
             if(_videoThread != null)
-			_videoThread.Abort();
+            	_videoThread.Abort();
 		}
 		
 		void Button1Click(object sender, EventArgs e)
 		{
-			 if (btnStart.Text.Equals("Start"))
-    		{
-			 	try {
-			 		backFramesCount=Convert.ToInt32(BackFramesCountText.Text);
-			 		capture = new CvCapture(PathText.Text);
-			 	}
-			 	catch(Exception ex){
-			 		return;
-			 	}
+			 if (_videoThread == null || !_videoThread.IsAlive){
 			 	_videoThread = new Thread(new ThreadStart(AvgMultiFrameDiffCallback));
     			_videoThread.Start();
-    			btnStart.Text = "Stop";
     		}
-    		else
-    		{
+    		else{
     			_videoThread.Abort();
-        		btnStart.Text = "Start";
     		}	
 					
 		}
@@ -184,6 +209,28 @@ namespace Motion_detect
    			{
     			PathText.Text = openFileDialog1.FileName;
    			}
+		}
+		void BackFramesCountTextTextChanged(object sender, EventArgs e)
+		{
+			try{
+				backFramesCount = Convert.ToInt32(BackFramesCountText.Text);
+			}
+			catch(Exception ex){
+				SafeLog("Wrong parameter");
+			}
+		}
+		void SlowCoefTextTextChanged(object sender, EventArgs e)
+		{
+			try{
+				slowCoef = Convert.ToDouble(SlowCoefText.Text);
+			}
+			catch(Exception ex){
+				SafeLog("Wrong parameter");
+			}
+		}
+		void BtnPauseClick(object sender, EventArgs e)
+		{
+			pauseFlag = !pauseFlag;
 		}
 	}
 }
