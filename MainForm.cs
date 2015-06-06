@@ -23,6 +23,7 @@ namespace Motion_detect
 	public partial class MainForm : Form
 	{
 		Thread _videoThread;
+        bool isCamera = false;
 		bool pauseFlag = false;
 		double slowCoef = 1;
 		int backFramesCount = 1;
@@ -35,9 +36,18 @@ namespace Motion_detect
 		}
 		private void AvgMultiFrameDiffCallback()
 		{
+            int sleepTime = 50;
 			try {
-				capture = new VideoCapture(PathText.Text);
-				int sleepTime = (int)Math.Round(1000 / capture.Fps);
+                if(isCamera)
+                {
+                    capture = new VideoCapture(0);
+                    Thread.Sleep(1000);
+                }
+                else
+                {
+                    capture = new VideoCapture(PathText.Text);
+                    sleepTime = (int)Math.Round(1000 / capture.Fps);
+                }
 				int imageCounter = 0;
 				Mat image = new Mat();
 				capture.Read(image);
@@ -47,20 +57,20 @@ namespace Motion_detect
 				Mat[] prevImages = new Mat[backFramesCount];
 				for (int i = 0; i < prevImages.Length; i++){	
 					prevImages[i] = image.EmptyClone();
-				}		
+				}
         		while (true)
         		{
         			capture.Read(image);
-        			if(image.Empty())
-            			break;
-        			image = image.CvtColor(ColorConversion.BgrToGray);
-        			if(backFramesCount == 1)
-        				avgImage = prevImages[0];
-        			else
-        				avgImage = AvgImgGray(prevImages);
-        			Cv2.Absdiff(avgImage,image,diffImage);
-        			//SimpleMotionDetect(AvgImg(prevImages),image,ref diffImage);
-        			Cv2.Threshold(diffImage, diffImage, 50,255, ThresholdType.Binary);
+                    if (image.Empty())
+                        break;
+                    image = image.CvtColor(ColorConversion.BgrToGray);
+                    if(backFramesCount == 1)
+                        avgImage = prevImages[0];
+                    else
+                        avgImage = AvgImgGray(prevImages);
+                    Cv2.Absdiff(avgImage, image, diffImage);
+                    //SimpleMotionDetect(AvgImg(prevImages),image,ref diffImage);
+                    Cv2.Threshold(diffImage, diffImage, 50, 255, ThresholdType.Binary);
         			pctCvWindow.Image = image.ToBitmap();
             		pctDiff.Image = diffImage.ToBitmap();
             		prevImages[imageCounter] = image.Clone();
@@ -74,7 +84,7 @@ namespace Motion_detect
         		}		 		
 			}
 			catch(Exception ex){
-			 	SafeLog("Bad input");
+			 	SafeLog(ex.ToString());
 			 	return;
 			 }
 		}
@@ -149,8 +159,8 @@ namespace Motion_detect
 		
 		Mat AvgImgGray(Mat[] inImg)
 		{
-			var avgImg = inImg[0].EmptyClone();
 			unsafe {
+                Mat avgImg = inImg[0].EmptyClone();
 				byte* ptrAvg = (byte*)avgImg.Data;
 				byte*[] ptrPct = new byte*[inImg.Length];
 				for (int i = 0; i < inImg.Length; i++)
@@ -160,17 +170,17 @@ namespace Motion_detect
 				
     			for (int y = 0; y < avgImg.Height; y++) {
         			for (int x = 0; x < avgImg.Width; x++) {
-						int offset = (avgImg.Channels() * avgImg.Width * y) + (x * 3);
+						int offset = (avgImg.Width * y) + (x * 3);
 						int Sum = 0;
 						for (int i = 0; i < inImg.Length; i++)
 						{
             				Sum += ptrPct[i][offset];
 						}
-						ptrAvg[offset] = Convert.ToByte(Sum/inImg.Length);    // B
+                        ptrAvg[offset] = Convert.ToByte(Sum / inImg.Length);    // B
         			}
     			}
+                return avgImg;
 			}
-			return avgImg;
 		}
 		
 		private void SafeLog(string text) {
@@ -232,5 +242,12 @@ namespace Motion_detect
 		{
 			pauseFlag = !pauseFlag;
 		}
+
+        private void checkBox1_CheckStateChanged(object sender, EventArgs e)
+        {
+            PathText.Enabled = !checkBox1.Checked;
+            BrowseButton.Enabled = !checkBox1.Checked;
+            isCamera = checkBox1.Checked;
+        }
 	}
 }
