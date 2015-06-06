@@ -75,7 +75,6 @@ namespace Motion_detect
                     else
                         avgImage = BkgCalc(prevImages, bkgMode);
                     Cv2.Absdiff(avgImage, image, diffImage);
-                    //SimpleMotionDetect(AvgImg(prevImages),image,ref diffImage);
                     Cv2.Threshold(diffImage, diffImage, 30, 255, ThresholdType.Binary);
         			pctCvWindow.Image = image.ToBitmap();
             		pctDiff.Image = diffImage.ToBitmap();
@@ -93,74 +92,6 @@ namespace Motion_detect
 			 	SafeLog(ex.ToString());
 			 	return;
 			 }
-		}
-		
-		long SimpleMotionDetect(Mat img1, Mat img2, ref Mat diffImage)
-		{
-			//Можно сделать раза в 3 быстрее http://tech.pro/tutorial/660/csharp-tutorial-convert-a-color-image-to-grayscale
-			int diff = 0;
-			unsafe {
-    			byte* ptr1 = (byte*)img1.Data;
-    			byte* ptr2 = (byte*)img2.Data;
-    			byte* ptr3 = (byte*)diffImage.Data;
-    			for (int y = 0; y < img1.Height; y++) {
-        			for (int x = 0; x < img1.Width; x++) {
-    					int offset = (img1.Width * img1.Channels() * y) + (x * 3);
-            			byte b1 = ptr1[offset + 0];    // B
-            			byte g1 = ptr1[offset + 1];    // G
-            			byte r1 = ptr1[offset + 2];    // R
-            			 byte grayScale1 = 
-               				(byte)((b1 * .11) + //B
-               				(g1 * .59) +  //G
-               				(r1 * .3)); //R
-            			byte b2 = ptr2[offset + 0];    // B
-            			byte g2 = ptr2[offset + 1];    // G
-            			byte r2 = ptr2[offset + 2];    // R
-            			 byte grayScale2 = 
-               				(byte)((b2 * .11) + //B
-               				(g2 * .59) +  //G
-               				(r2 * .3)); //R
-            			ptr3[offset + 0] = (Byte)Math.Abs(b2 - b1);    // B
-            			ptr3[offset + 1] = (Byte)Math.Abs(g2 - g1);    // G
-            			ptr3[offset + 2] = (Byte)Math.Abs(r2 - r1);     // R
-
-                         diff += Math.Abs(grayScale1 - grayScale2);
-        			}
-    			}
-			}
-			return diff;
-		}
-
-		Mat AvgImg(Mat[] inImg)
-		{
-			var avgImg = inImg[0].EmptyClone();
-			unsafe {
-				byte* ptrAvg = (byte*)avgImg.Data;
-				byte*[] ptrPct = new byte*[inImg.Length];
-				for (int i = 0; i < inImg.Length; i++)
-				{
-					ptrPct[i] = (byte*)inImg[i].Data;
-				}
-				
-    			for (int y = 0; y < avgImg.Height; y++) {
-        			for (int x = 0; x < avgImg.Width; x++) {
-						int offset = (avgImg.Channels() * avgImg.Width * y) + (x * 3);
-						int bSum = 0;
-						int gSum = 0;
-						int rSum = 0;
-						for (int i = 0; i < inImg.Length; i++)
-						{
-            				bSum += ptrPct[i][offset + 0];    // B
-            				gSum += ptrPct[i][offset + 1];    // G
-            				rSum += ptrPct[i][offset + 2];    // R
-						}
-						ptrAvg[offset + 0] = Convert.ToByte(bSum/inImg.Length);    // B
-						ptrAvg[offset + 1] = Convert.ToByte(gSum/inImg.Length);    // G
-						ptrAvg[offset + 2] = Convert.ToByte(rSum/inImg.Length);     // R
-        			}
-    			}
-			}
-			return avgImg;
 		}
 		
 		Mat BkgCalc(Mat[] inImg, int mode)
@@ -185,7 +116,7 @@ namespace Motion_detect
 						        {
             				        Sum += ptrPct[i][offset];
 						        }
-                                ptrRet[offset] = Convert.ToByte(Sum / inImg.Length);    // B
+                                ptrRet[offset] = Convert.ToByte(Sum / inImg.Length);
                                 break;
                             case 1:
                                 byte[] arr = new byte[inImg.Length];
@@ -210,7 +141,6 @@ namespace Motion_detect
                                     }
                                     ptrRet[offset] = Convert.ToByte(maxIndex * 16 + 8);
                                 }
-
                                 break;
                         }
         			}
