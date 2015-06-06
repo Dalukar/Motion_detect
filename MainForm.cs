@@ -27,6 +27,8 @@ namespace Motion_detect
 		bool pauseFlag = false;
 		double slowCoef = 1;
 		int backFramesCount = 1;
+        int bkgMode = 0;
+        byte[,,] gaussDistr;
 		VideoCapture capture = null;
 		public MainForm()
 		{
@@ -58,19 +60,23 @@ namespace Motion_detect
 				for (int i = 0; i < prevImages.Length; i++){	
 					prevImages[i] = image.EmptyClone();
 				}
+                if (bkgMode == 2)
+                {
+                    gaussDistr = new byte[image.Width, image.Height, 16];
+                }
         		while (true)
         		{
         			capture.Read(image);
                     if (image.Empty())
                         break;
                     image = image.CvtColor(ColorConversion.BgrToGray);
-                    if(backFramesCount == 1)
+                    if(backFramesCount == 1 && bkgMode != 2)
                         avgImage = prevImages[0];
                     else
-                        avgImage = AvgImgGray(prevImages);
+                        avgImage = BkgCalc(prevImages, bkgMode);
                     Cv2.Absdiff(avgImage, image, diffImage);
                     //SimpleMotionDetect(AvgImg(prevImages),image,ref diffImage);
-                    Cv2.Threshold(diffImage, diffImage, 50, 255, ThresholdType.Binary);
+                    Cv2.Threshold(diffImage, diffImage, 30, 255, ThresholdType.Binary);
         			pctCvWindow.Image = image.ToBitmap();
             		pctDiff.Image = diffImage.ToBitmap();
             		prevImages[imageCounter] = image.Clone();
@@ -157,29 +163,59 @@ namespace Motion_detect
 			return avgImg;
 		}
 		
-		Mat AvgImgGray(Mat[] inImg)
+		Mat BkgCalc(Mat[] inImg, int mode)
 		{
 			unsafe {
-                Mat avgImg = inImg[0].EmptyClone();
-				byte* ptrAvg = (byte*)avgImg.Data;
+                Mat retImg = inImg[0].EmptyClone();
+				byte* ptrRet = (byte*)retImg.Data;
 				byte*[] ptrPct = new byte*[inImg.Length];
 				for (int i = 0; i < inImg.Length; i++)
 				{
 					ptrPct[i] = (byte*)inImg[i].Data;
 				}
 				
-    			for (int y = 0; y < avgImg.Height; y++) {
-        			for (int x = 0; x < avgImg.Width; x++) {
-						int offset = (avgImg.Width * y) + (x * 3);
-						int Sum = 0;
-						for (int i = 0; i < inImg.Length; i++)
-						{
-            				Sum += ptrPct[i][offset];
-						}
-                        ptrAvg[offset] = Convert.ToByte(Sum / inImg.Length);    // B
+    			for (int y = 0; y < retImg.Height; y++) {
+        			for (int x = 0; x < retImg.Width; x++) {
+                        int offset = (retImg.Width * y) + x;
+                        switch(mode)
+                        {
+                            case 0:
+						        int Sum = 0;
+						        for (int i = 0; i < inImg.Length; i++)
+						        {
+            				        Sum += ptrPct[i][offset];
+						        }
+                                ptrRet[offset] = Convert.ToByte(Sum / inImg.Length);    // B
+                                break;
+                            case 1:
+                                byte[] arr = new byte[inImg.Length];
+                                for (int i = 0; i < inImg.Length; i++)
+                                {
+                                    arr[i] = ptrPct[i][offset];
+                                }
+                                Array.Sort(arr);
+                                ptrRet[offset] = arr[Convert.ToInt32((arr.Length - 1) / 2)];
+                                break;
+                            case 2:
+                                int maxIndex = 0;
+                                int maxValue = 0;
+                                gaussDistr[x, y, Convert.ToInt32(ptrPct[0][offset] / 16)] += 70;
+                                for (int i = 0; i < 16; i++)
+                                {
+                                    gaussDistr[x, y, i] = Convert.ToByte(gaussDistr[x, y, i]/1.4);
+                                    if (gaussDistr[x, y, i] > maxValue)
+                                    {
+                                        maxIndex = i;
+                                        maxValue = gaussDistr[x, y, i];
+                                    }
+                                    ptrRet[offset] = Convert.ToByte(maxIndex * 16 + 8);
+                                }
+
+                                break;
+                        }
         			}
     			}
-                return avgImg;
+                return retImg;
 			}
 		}
 		
@@ -248,6 +284,11 @@ namespace Motion_detect
             PathText.Enabled = !checkBox1.Checked;
             BrowseButton.Enabled = !checkBox1.Checked;
             isCamera = checkBox1.Checked;
+        }
+
+        private void BkgModeBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            bkgMode = BkgModeBox.SelectedIndex;
         }
 	}
 }

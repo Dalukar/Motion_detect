@@ -59,6 +59,8 @@ namespace Motion_detect
             this.SlowCoefText = new System.Windows.Forms.TextBox();
             this.btnPause = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.BkgModeBox = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pctCvWindow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pctDiff)).BeginInit();
             this.SuspendLayout();
@@ -177,11 +179,37 @@ namespace Motion_detect
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckStateChanged += new System.EventHandler(this.checkBox1_CheckStateChanged);
             // 
+            // BkgModeBox
+            // 
+            this.BkgModeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.BkgModeBox.FormattingEnabled = true;
+            this.BkgModeBox.Items.AddRange(new object[] {
+            "Average",
+            "Median",
+            "Gauss"});
+            this.BkgModeBox.Location = new System.Drawing.Point(811, 40);
+            this.BkgModeBox.Name = "BkgModeBox";
+            this.BkgModeBox.Size = new System.Drawing.Size(121, 21);
+            this.BkgModeBox.TabIndex = 13;
+            this.BkgModeBox.SelectedIndexChanged += new System.EventHandler(this.BkgModeBox_SelectedIndexChanged);
+            this.BkgModeBox.SelectedIndex = 0;
+            // 
+            // label3
+            // 
+            this.label3.Location = new System.Drawing.Point(699, 40);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(106, 23);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "Mode";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1020, 553);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.BkgModeBox);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.btnPause);
             this.Controls.Add(this.label2);
@@ -205,5 +233,7 @@ namespace Motion_detect
 		}
 
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.ComboBox BkgModeBox;
+        private System.Windows.Forms.Label label3;
 	}
 }
