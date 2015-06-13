@@ -77,10 +77,10 @@ namespace Motion_detect
             // 
             // LogBox
             // 
-            this.LogBox.Location = new System.Drawing.Point(506, 378);
+            this.LogBox.Location = new System.Drawing.Point(509, 378);
             this.LogBox.Name = "LogBox";
             this.LogBox.ReadOnly = true;
-            this.LogBox.Size = new System.Drawing.Size(502, 163);
+            this.LogBox.Size = new System.Drawing.Size(487, 163);
             this.LogBox.TabIndex = 1;
             this.LogBox.Text = "";
             // 
@@ -192,7 +192,6 @@ namespace Motion_detect
             this.BkgModeBox.Size = new System.Drawing.Size(121, 21);
             this.BkgModeBox.TabIndex = 13;
             this.BkgModeBox.SelectedIndexChanged += new System.EventHandler(this.BkgModeBox_SelectedIndexChanged);
-            this.BkgModeBox.SelectedIndex = 0;
             // 
             // label3
             // 
@@ -207,7 +206,7 @@ namespace Motion_detect
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1020, 553);
+            this.ClientSize = new System.Drawing.Size(1012, 553);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.BkgModeBox);
             this.Controls.Add(this.checkBox1);

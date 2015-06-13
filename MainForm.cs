@@ -13,7 +13,7 @@ using System.Windows.Forms;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System.Threading;
-using  OpenCvSharp.CPlusPlus;
+using OpenCvSharp.CPlusPlus;
 
 namespace Motion_detect
 {
@@ -39,7 +39,7 @@ namespace Motion_detect
 		private void AvgMultiFrameDiffCallback()
 		{
             int sleepTime = 50;
-			try {
+            try {
                 if(isCamera)
                 {
                     capture = new VideoCapture(0);
@@ -66,7 +66,7 @@ namespace Motion_detect
                 }
         		while (true)
         		{
-        			capture.Read(image);
+                    capture.Read(image);
                     if (image.Empty())
                         break;
                     image = image.CvtColor(ColorConversion.BgrToGray);
@@ -75,7 +75,9 @@ namespace Motion_detect
                     else
                         avgImage = BkgCalc(prevImages, bkgMode);
                     Cv2.Absdiff(avgImage, image, diffImage);
+                    Cv2.Blur(diffImage, diffImage, new OpenCvSharp.CPlusPlus.Size(8,8));
                     Cv2.Threshold(diffImage, diffImage, 30, 255, ThresholdType.Binary);
+                    RectDetect(diffImage);
         			pctCvWindow.Image = image.ToBitmap();
             		pctDiff.Image = diffImage.ToBitmap();
             		prevImages[imageCounter] = image.Clone();
@@ -87,11 +89,11 @@ namespace Motion_detect
             			Thread.Sleep(100);
             		Thread.Sleep(Convert.ToInt32(sleepTime*slowCoef));
         		}		 		
-			}
-			catch(Exception ex){
-			 	SafeLog(ex.ToString());
-			 	return;
-			 }
+            }
+            catch(Exception ex){
+                SafeLog(ex.ToString());
+                return;
+             }
 		}
 		
 		Mat BkgCalc(Mat[] inImg, int mode)
@@ -130,10 +132,13 @@ namespace Motion_detect
                             case 2:
                                 int maxIndex = 0;
                                 int maxValue = 0;
-                                gaussDistr[x, y, Convert.ToInt32(ptrPct[0][offset] / 16)] += 70;
+                                double alpha = 0.5;
+                                double aaa = 0;
                                 for (int i = 0; i < 16; i++)
                                 {
-                                    gaussDistr[x, y, i] = Convert.ToByte(gaussDistr[x, y, i]/1.4);
+                                    gaussDistr[x, y, i] = Convert.ToByte(gaussDistr[x, y, i] * (1 - alpha));
+                                    if (i == Convert.ToInt32(ptrPct[0][offset] / 16))
+                                        gaussDistr[x, y, i] += Convert.ToByte(alpha*254);
                                     if (gaussDistr[x, y, i] > maxValue)
                                     {
                                         maxIndex = i;
@@ -148,7 +153,48 @@ namespace Motion_detect
                 return retImg;
 			}
 		}
-		
+
+        void RectDetect(Mat inImg)
+        {
+            int[] p1 = new int[2];
+            p1[0] = inImg.Width;
+            int[] p2 = new int[2];
+            p2[0] = 0;
+            unsafe
+            {
+                byte* ptrPct = (byte*)inImg.Data;
+                for (int y = 0; y < inImg.Height; y++)
+                {
+                    for (int x = 0; x < inImg.Width; x++)
+                    {
+                        int offset = (inImg.Width * y) + x;
+                        if (ptrPct[offset] > 0)
+                        {
+                            if (x > p2[0])
+                                p2[0] = x;
+                            p2[1] = y;
+
+                        }
+                    }
+                }
+                for (int y = inImg.Height-1; y >= 0; y--)
+                {
+                    for (int x = inImg.Width-1; x >= 0; x--)
+                    {
+                        int offset = (inImg.Width * y) + x;
+                        if (ptrPct[offset] > 0)
+                        {
+                            if (x < p1[0])
+                                p1[0] = x;
+                            p1[1] = y;
+                        }
+                    }
+                }
+            }
+            Rect r1 = new Rect(p1[0], p1[1], p2[0]-p1[0], p2[1]-p1[1]);
+            Cv2.Rectangle(inImg, r1, Scalar.White, 2, LineType.Link8, 0);
+        }
+
 		private void SafeLog(string text) {
             Action chTxt = new Action(() => {
                 LogBox.Text = text;
